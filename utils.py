@@ -8,6 +8,7 @@ import random
 from torch.utils.data import Dataset, DataLoader
 import time
 from skimage.util.shape import view_as_windows
+from PIL import Image
 
 class eval_mode(object):
     def __init__(self, *models):
@@ -86,6 +87,7 @@ class ReplayBuffer(Dataset):
         self.rewards = np.empty((capacity, 1), dtype=np.float32)
         self.not_dones = np.empty((capacity, 1), dtype=np.float32)
 
+        self.global_idx = 0
         self.idx = 0
         self.last_save = 0
         self.full = False
@@ -94,7 +96,13 @@ class ReplayBuffer(Dataset):
     
 
     def add(self, obs, action, reward, next_obs, done):
-       
+        os.makedirs('saved_images', exist_ok=True)
+        for i in range(0, obs.shape[0], 3):
+            a = obs[i:i+3, :, :]
+            img = Image.fromarray(a.transpose(1, 2, 0), mode='RGB')
+            img.save(f"saved_images/{self.global_idx}.jpg")
+            self.global_idx += 1
+
         np.copyto(self.obses[self.idx], obs)
         np.copyto(self.actions[self.idx], action)
         np.copyto(self.rewards[self.idx], reward)
