@@ -49,7 +49,7 @@ class PixelEncoder(nn.Module):
         return mu + eps * std
 
     def forward_conv(self, obs):
-        with torch.nograd():
+        with torch.no_grad():
             if obs.max() > 1.:
                 obs = obs / 255.
 
