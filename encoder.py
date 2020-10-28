@@ -12,7 +12,7 @@ OUT_DIM = {2: 39, 4: 35, 6: 31}
 OUT_DIM_64 = {2: 29, 4: 25, 6: 21}
 OUT_DIM_108 = {4: 47}
 
- 
+
 class PixelEncoder(nn.Module):
     """Convolutional encoder of pixels observations."""
     def __init__(self, obs_shape, feature_dim, num_layers=2, num_filters=32,output_logits=False):
@@ -42,6 +42,7 @@ class PixelEncoder(nn.Module):
 
         self.outputs = dict()
         self.output_logits = output_logits
+        from IPython import embed; embed()
 
     def reparameterize(self, mu, logstd):
         std = torch.exp(logstd)
@@ -49,19 +50,20 @@ class PixelEncoder(nn.Module):
         return mu + eps * std
 
     def forward_conv(self, obs):
-        if obs.max() > 1.:
-            obs = obs / 255.
+        with torch.nograd():
+            if obs.max() > 1.:
+                obs = obs / 255.
 
-        self.outputs['obs'] = obs
+            self.outputs['obs'] = obs
 
-        conv = torch.relu(self.convs[0](obs))
-        self.outputs['conv1'] = conv
+            conv = torch.relu(self.convs[0](obs))
+            self.outputs['conv1'] = conv
 
-        for i in range(1, self.num_layers):
-            conv = torch.relu(self.convs[i](conv))
-            self.outputs['conv%s' % (i + 1)] = conv
+            for i in range(1, self.num_layers):
+                conv = torch.relu(self.convs[i](conv))
+                self.outputs['conv%s' % (i + 1)] = conv
 
-        h = conv.view(conv.size(0), -1)
+            h = conv.view(conv.size(0), -1)
         return h
 
     def forward(self, obs, detach=False):

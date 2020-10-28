@@ -11,7 +11,13 @@ import data_augs as rad
 
 LOG_FREQ = 10000
 
-        
+
+def load_encoder_weights(enc):
+    weights = torch.load('/home/ubuntu/efs/SimCLR/runs/Oct27_07-09-14_ip-172-31-8-126/checkpoints/model.pth')
+    weights = {k:v for k, v in weights.items() if k.startswith('conv')}
+    enc.load_state_dict(weights)
+
+
 def gaussian_logprob(noise, log_std):
     """Compute Gaussian log probability."""
     residual = (-0.5 * noise.pow(2) - log_std).sum(-1, keepdim=True)
@@ -69,6 +75,7 @@ class Actor(nn.Module):
 
         self.outputs = dict()
         self.apply(weight_init)
+        load_encoder_weights(self.encoder)
 
     def forward(
         self, obs, compute_pi=True, compute_log_pi=True, detach_encoder=False
@@ -156,6 +163,7 @@ class Critic(nn.Module):
 
         self.outputs = dict()
         self.apply(weight_init)
+        load_encoder_weights(self.encoder)
 
     def forward(self, obs, action, detach_encoder=False):
         # detach_encoder allows to stop gradient propogation to encoder
