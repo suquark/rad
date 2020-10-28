@@ -15,7 +15,7 @@ LOG_FREQ = 10000
 def load_encoder_weights(enc):
     weights = torch.load('/home/ubuntu/efs/SimCLR/runs/Oct27_07-09-14_ip-172-31-8-126/checkpoints/model.pth')
     weights = {k:v for k, v in weights.items() if k.startswith('conv')}
-    enc.load_state_dict(weights)
+    enc.load_state_dict(weights, strict=False)
 
 
 def gaussian_logprob(noise, log_std):

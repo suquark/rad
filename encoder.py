@@ -42,7 +42,6 @@ class PixelEncoder(nn.Module):
 
         self.outputs = dict()
         self.output_logits = output_logits
-        from IPython import embed; embed()
 
     def reparameterize(self, mu, logstd):
         std = torch.exp(logstd)
